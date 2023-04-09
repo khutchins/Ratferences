@@ -1,20 +1,33 @@
-# Pomerandomian
+# Ratferences
 
-An abstract class for randomness that makes it easy to get a flexible, repeatable random number source.
+Yet another Unity library that uses scriptable objects to tie references to their state. There are probably better ones out there, but I didn't want my scripts to depend on another library. Also, some of them were too big for my taste.
 
-The name is combining the words Pomeranian and Random together. I know it's a reach.
+The name is combining the words Rat and References together. Not as big of a reach as some of the other ones!
 
 ## Overview
 
-IRandom is an abstract class that allows you to pass around an abstract reference. There's currently only one implementation: SystemRandom. It usees System.Random for its underlying generation (I know, not a big surprise). 
+Scriptable object references are a way of decoupling game objects from each other while still letting them communicate. 
 
-**C# doesn't guarantee that System.Random behaves the same cross-platform or across versions of C#**, but it hasn't failed me yet. If this guarantee is desired, implement your own PRNG!
+For instance, imagine you wanted to have access to your player's HP at any given time. Your player manager could have an `IntReference` that contains the current health value. It would be in charge of setting the value, but wouldn't be concerned about who is consuming it. Your HP UI display could request updates on that same `IntReference` and update the text whenever the value changes.
 
-## Selected Features
+Neither of these implementations would depend on each other, and either component could be swapped out  without knowing about the other. All references derive from `ValueReference`, which lets you specify a `ValueChanged` callback that's executed on all value changes.
 
-* Strings are supported as seeds (they're MD5 hashed down to integers. Standard security warnings about MD5 apply, but if you're doing anything involving security, don't use this).
-* Access the IRandom's seed (and string seed via raw seed, if created using one) whenever you want.
-* Ability to create child random objects to sequester off a RNG that pulls a non-deterministic number of samples. Environment object sparking randomly when it bounces off a wall? No problem, create a child random for it without affecting the randomness of anything later.
+## Caveats
+
+Scriptable objects maintain their value across the lifetime of your project and across scenes. Defining your defaults in a ValueReference is usually a bad idea since they can be overwritten.
+
+### Adding New Value Types
+
+New types can be added by subclassing `ValueReference`. For instance, here's the entire definition of `IntReference`.
+
+```
+using UnityEngine;
+
+namespace Ratferences {
+	[CreateAssetMenu(menuName = "KH/Reference/Int")]
+	public class IntReference : ValueReference<int> { }
+}
+```
 
 ## Installation
 
@@ -24,12 +37,12 @@ NOTE: You should always back up your project before installing a new package.
 
 ### Add to Package Manager
 
-Open the package manager (Window -> Package Manager), and hit the plus button (+) in the top right, then "add package from git URL". In that field, enter `https://github.com/khutchins/pomerandomian.git` and click Add.
+Open the package manager (Window -> Package Manager), and hit the plus button (+) in the top right, then "add package from git URL". In that field, enter `https://github.com/khutchins/ratferences.git` and click Add.
 
 ### Modify manifest.json
 
 Open Packages/manifest.json and add this to the list of dependencies (omitting the comma if it's at the end):
 
 ```
-"com.khutchins.pomerandomian": "https://github.com/khutchins/pomerandomian.git",
+"com.khutchins.ratferences": "https://github.com/khutchins/ratferences.git",
 ```
