@@ -64,5 +64,26 @@ namespace Ratferences {
 				_reference.ValueChanged -= ReferenceValueChanged;
 			}
 		}
+
+		/// <summary>
+		/// UnityEvents are not instantiated immediately on adding a component,
+		/// so attempts to add them then will fail. This method will handle that
+		/// condition by deferring the addition until the end of the frame.
+		/// NOTE: This can cause race conditions if sending out an event in approximately
+		/// the same frame that you're adding the component and adding the listener.
+		/// </summary>
+		/// <param name="call"></param>
+		public void AddListener(UnityAction<T> call) {
+			if (Event == null) {
+				StartCoroutine(DeferAddingListener(call));
+			} else {
+				Event.AddListener(call);
+			}
+		}
+
+		private IEnumerator DeferAddingListener(UnityAction<T> call) {
+			yield return new WaitForEndOfFrame();
+			Event.AddListener(call);
+		}
 	}
 }
