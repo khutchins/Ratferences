@@ -26,8 +26,24 @@ namespace Ratferences {
         /// </summary>
         /// <param name="newValue">The new value</param>
         public void SetValue(T newValue) {
+#if UNITY_EDITOR
+            _cachedValue = newValue;
+#endif
             _value = newValue;
             ValueChanged?.Invoke(Value);
-		}
+        }
+
+#if UNITY_EDITOR
+        T _cachedValue;
+        private void Awake() {
+            _cachedValue = _value;
+        }
+
+        private void OnValidate() {
+            if (Application.isPlaying && !EqualityComparer<T>.Default.Equals(_cachedValue, _value)) {
+                SetValue(_value);
+            }
+        }
+#endif
     }
 }
