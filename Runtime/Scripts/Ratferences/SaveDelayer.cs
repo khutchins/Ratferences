@@ -1,3 +1,4 @@
+using Ratferences;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -15,6 +16,20 @@ public abstract class SaveDelayer : MonoBehaviour {
     // to check if (_saveCoroutine != null), but a null coroutine was still
     // going into the block. Probably Unity doing its weird fake null thing.
     private bool _isCoroutineActive = false;
+
+    public void ScheduleSave(SaveType saveType) {
+        switch (saveType) {
+            case SaveType.Immediate:
+                SaveNow();
+                break;
+            case SaveType.AfterDelay:
+                ScheduleSave();
+                break;
+            case SaveType.DoesntTrigger:
+            default:
+                break;
+        }
+    }
 
     public void ScheduleSave() {
         _delayableSaveTime = Time.unscaledTime + SaveDelay;
