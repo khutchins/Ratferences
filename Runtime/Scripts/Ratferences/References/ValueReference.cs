@@ -3,7 +3,12 @@ using System.Collections.Generic;
 using UnityEngine;
 
 namespace Ratferences {
-    public class ValueReference<T> : ScriptableObject {
+    public class ValueReference : ScriptableObject {
+        public delegate void OnValueChangedSignal();
+        public OnValueChangedSignal ValueChangedSignal;
+    }
+
+    public class ValueReference<T> : ValueReference {
 
         public delegate void OnValueChanged(T newValue);
 
@@ -31,6 +36,7 @@ namespace Ratferences {
 #endif
             _value = newValue;
             ValueChanged?.Invoke(Value);
+            ValueChangedSignal?.Invoke();
         }
 
 #if UNITY_EDITOR
