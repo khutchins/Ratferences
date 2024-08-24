@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace Ratferences {
     public class ValueReference : ScriptableObject {
-        public delegate void OnValueChangedSignal();
+        public delegate void OnValueChangedSignal(ValueReference reference);
         public OnValueChangedSignal ValueChangedSignal;
     }
 
@@ -36,7 +36,7 @@ namespace Ratferences {
 #endif
             _value = newValue;
             ValueChanged?.Invoke(Value);
-            ValueChangedSignal?.Invoke();
+            ValueChangedSignal?.Invoke(this);
         }
 
 #if UNITY_EDITOR
