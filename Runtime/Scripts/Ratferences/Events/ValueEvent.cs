@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -27,6 +28,8 @@ namespace Ratferences {
 
 		public UnityEvent<T> Event;
 
+		public event Action<T> Changed;
+
 		private void Start() {
 			if (TriggerOnStart && _reference != null) {
 				ReferenceValueChanged(_reference.Value);
@@ -48,6 +51,7 @@ namespace Ratferences {
 
 		protected virtual void ReferenceValueChanged(T newValue) {
 			Event?.Invoke(newValue);
+			Changed?.Invoke(newValue);
 		}
 
 		private void OnEnable() {
@@ -66,24 +70,16 @@ namespace Ratferences {
 		}
 
 		/// <summary>
-		/// UnityEvents are not instantiated immediately on adding a component,
-		/// so attempts to add them then will fail. This method will handle that
-		/// condition by deferring the addition until the end of the frame.
-		/// NOTE: This can cause race conditions if sending out an event in approximately
-		/// the same frame that you're adding the component and adding the listener.
+		/// Adds a listener for value changes. Handles UnityEvent
+		/// being null by using an underlying delegate instead.
 		/// </summary>
 		/// <param name="call"></param>
 		public void AddListener(UnityAction<T> call) {
 			if (Event == null) {
-				StartCoroutine(DeferAddingListener(call));
+				Changed += call.Invoke;
 			} else {
 				Event.AddListener(call);
 			}
-		}
-
-		private IEnumerator DeferAddingListener(UnityAction<T> call) {
-			yield return new WaitForEndOfFrame();
-			Event.AddListener(call);
 		}
 	}
 }
